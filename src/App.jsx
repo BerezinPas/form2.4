@@ -1,117 +1,83 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useForm } from 'react-hook-form';
 import styles from './App.module.scss';
 import { InputGroup } from './components';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
 	emailScheme,
 	passwordMaxScheme,
 	passwordRepeatScheme,
 	passwordScheme,
 } from './schemes';
-import {
-	emailValidator,
-	passLowerCaseValidator,
-	passMaxValidator,
-	passMinValidator,
-	passNumberValidator,
-	passSpecialSymbolValidator,
-	passUpperCaseValidator,
-} from './validators';
 
 function App() {
-	const [formValid, setFormValid] = useState({
-		email: false,
-		password: false,
-		passwordRepeat: false,
-	});
-	// console.log(formValid);
-
-	const [formData, setFormData] = useState({
-		email: '',
-		password: '',
-		passwordRepeat: '',
+	const formScheme = yup.object().shape({
+		email: emailScheme,
+		password: passwordMaxScheme.concat(passwordScheme),
+		passwordRepeat: passwordRepeatScheme,
 	});
 
-	let isFormValid = Object.values(formValid).every((value) => value);
+	const {
+		register,
+		handleSubmit,
+		trigger,
+		formState: { errors, isValid, touchedFields },
+	} = useForm({
+		defaultValues: {
+			email: '',
+			password: '',
+			passwordRepeat: '',
+		},
+		mode: 'onTouched',
+		resolver: yupResolver(formScheme),
+	});
+
 	let submitBtnRef = useRef(null);
 
-	const onInputChange = (e) => {
-		setFormData({ ...formData, [e.target.name]: e.target.value });
-	};
-	const passRepeatValidator = (val) =>
-		val === formData.password ? null : 'Пароли не совпадают';
-
 	useEffect(() => {
-		if (isFormValid) {
+		if (isValid) {
 			submitBtnRef.current.focus();
 		}
-	}, [isFormValid]);
+	}, [isValid]);
+
+	const onSubmit = (data) => {
+		console.log(data);
+	};
 
 	return (
-		<form
-			action=""
-			className={styles.form}
-			onSubmit={(e) => {
-				e.preventDefault();
-				console.log(formData.email, formData.password);
-			}}
-		>
+		<form action="" className={styles.form} onSubmit={handleSubmit(onSubmit)}>
 			<InputGroup
 				lavelText="Почта"
-				onChange={onInputChange}
 				name="email"
-				value={formData.email}
 				placeholder="example@mail.ru"
-				setValue={onInputChange}
-				// validators={[emailValidator]}
-				schemes={[emailScheme]}
-				setValid={(bool) => setFormValid({ ...formValid, email: bool })}
-				forceValidate={formValid.password && formValid.passwordRepeat}
+				{...register('email')}
+				error={errors.email?.message}
 			/>
 			<InputGroup
 				lavelText="Пароль"
-				onChange={onInputChange}
 				name="password"
 				type="password"
-				value={formData.password}
 				placeholder="password"
-				setValue={onInputChange}
-				schemes={[passwordScheme]}
-				onChangeSchemes={[passwordMaxScheme]}
-				// validators={[
-				// 	passLowerCaseValidator,
-				// 	passMinValidator,
-				// 	passSpecialSymbolValidator,
-				// 	passNumberValidator,
-				// 	passUpperCaseValidator,
-				// ]}
-				// onChangeValidators={[passMaxValidator]}
-				setValid={(bool) => setFormValid({ ...formValid, password: bool })}
-				forceValidate={formValid.email && formData.passwordRepeat}
+				{...register('password', {
+					onChange: () => touchedFields.password && trigger('passwordRepeat'),
+				})}
+				error={errors.password?.message}
 			/>
 			<InputGroup
 				lavelText="Повтор пароля"
-				type="password"
-				onChange={onInputChange}
-				name="passwordRepeat"
-				value={formData.passwordRepeat}
 				placeholder="password"
-				setValue={onInputChange}
-				schemes={[passwordRepeatScheme(formData.password)]}
-				onChangeSchemes={[passwordRepeatScheme(formData.password)]}
-				validators={[passRepeatValidator]}
-				onChangeValidators={[passRepeatValidator]}
-				setValid={(bool) =>
-					setFormValid({ ...formValid, passwordRepeat: bool })
-				}
-				forceValidate={formData.password}
-				dependencies={[formData.password]}
+				name="passwordRepeat"
+				type="password"
+				{...register('passwordRepeat')}
+				error={errors.passwordRepeat?.message}
 			/>
 
 			<button
 				ref={submitBtnRef}
 				className={styles.submitBtn}
 				type="submit"
-				disabled={!isFormValid}
+				disabled={!isValid}
 			>
 				Зарегистрироваться
 			</button>
