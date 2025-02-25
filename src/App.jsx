@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './App.module.scss';
 import { InputGroup } from './components';
 import {
+	emailScheme,
+	passwordMaxScheme,
+	passwordRepeatScheme,
+	passwordScheme,
+} from './schemes';
+import {
 	emailValidator,
 	passLowerCaseValidator,
 	passMaxValidator,
@@ -12,12 +18,12 @@ import {
 } from './validators';
 
 function App() {
-	const [formValids, setFormValids] = useState({
+	const [formValid, setFormValid] = useState({
 		email: false,
 		password: false,
 		passwordRepeat: false,
 	});
-	console.log(formValids);
+	// console.log(formValid);
 
 	const [formData, setFormData] = useState({
 		email: '',
@@ -25,7 +31,7 @@ function App() {
 		passwordRepeat: '',
 	});
 
-	let isFormValid = Object.values(formValids).every((value) => value);
+	let isFormValid = Object.values(formValid).every((value) => value);
 	let submitBtnRef = useRef(null);
 
 	const onInputChange = (e) => {
@@ -56,9 +62,10 @@ function App() {
 				value={formData.email}
 				placeholder="example@mail.ru"
 				setValue={onInputChange}
-				validators={[emailValidator]}
-				setValid={(bool) => setFormValids({ ...formValids, email: bool })}
-				forceValidate={formValids.password && formValids.passwordRepeat}
+				// validators={[emailValidator]}
+				schemes={[emailScheme]}
+				setValid={(bool) => setFormValid({ ...formValid, email: bool })}
+				forceValidate={formValid.password && formValid.passwordRepeat}
 			/>
 			<InputGroup
 				lavelText="Пароль"
@@ -68,16 +75,18 @@ function App() {
 				value={formData.password}
 				placeholder="password"
 				setValue={onInputChange}
-				validators={[
-					passLowerCaseValidator,
-					passMinValidator,
-					passSpecialSymbolValidator,
-					passNumberValidator,
-					passUpperCaseValidator,
-				]}
-				onChangeValidators={[passMaxValidator]}
-				setValid={(bool) => setFormValids({ ...formValids, password: bool })}
-				forceValidate={formValids.email && formData.passwordRepeat}
+				schemes={[passwordScheme]}
+				onChangeSchemes={[passwordMaxScheme]}
+				// validators={[
+				// 	passLowerCaseValidator,
+				// 	passMinValidator,
+				// 	passSpecialSymbolValidator,
+				// 	passNumberValidator,
+				// 	passUpperCaseValidator,
+				// ]}
+				// onChangeValidators={[passMaxValidator]}
+				setValid={(bool) => setFormValid({ ...formValid, password: bool })}
+				forceValidate={formValid.email && formData.passwordRepeat}
 			/>
 			<InputGroup
 				lavelText="Повтор пароля"
@@ -87,10 +96,12 @@ function App() {
 				value={formData.passwordRepeat}
 				placeholder="password"
 				setValue={onInputChange}
+				schemes={[passwordRepeatScheme(formData.password)]}
+				onChangeSchemes={[passwordRepeatScheme(formData.password)]}
 				validators={[passRepeatValidator]}
 				onChangeValidators={[passRepeatValidator]}
 				setValid={(bool) =>
-					setFormValids({ ...formValids, passwordRepeat: bool })
+					setFormValid({ ...formValid, passwordRepeat: bool })
 				}
 				forceValidate={formData.password}
 				dependencies={[formData.password]}

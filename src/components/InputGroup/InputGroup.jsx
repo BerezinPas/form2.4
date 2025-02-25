@@ -1,12 +1,25 @@
 import { useEffect, useState } from 'react';
 import styles from './InputGroup.module.scss';
 
-const validate = (arr, val) => {
+// const validate = (arr, val) => {
+// 	let error = null;
+// 	arr.some((validator) => {
+// 		error = validator(val);
+// 		return error;
+// 	});
+// 	return error;
+// };
+
+const validate = (schemes, val) => {
 	let error = null;
-	arr.some((validator) => {
-		error = validator(val);
-		return error;
-	});
+
+	try {
+		schemes.forEach((scheme) => scheme.validateSync(val));
+	} catch ({ errors }) {
+		console.log('EROROOROR', errors);
+
+		error = errors[0];
+	}
 	return error;
 };
 
@@ -16,6 +29,8 @@ export function InputGroup({
 	value,
 	setValid,
 	forceValidate,
+	schemes,
+	onChangeSchemes = [],
 	validators = [],
 	onChangeValidators = [],
 	dependencies = [],
@@ -26,19 +41,35 @@ export function InputGroup({
 	const [isDirty, setIsDirty] = useState(false);
 	const [isWasErrored, setIsWasErrored] = useState(false);
 
+	// const validateField = (val, shouldValidate) => {
+	// 	let error = null;
+	// 	let isValid = false;
+	// 	const allValidators = [...validators, ...onChangeValidators];
+
+	// 	if (shouldValidate) {
+	// 		error = validate(allValidators, val);
+	// 		isValid = error === null;
+	// 		// console.log('isDirty', isDirty);
+	// 	} else {
+	// 		error = validate(onChangeValidators, val);
+	// 	}
+
+	// 	setValid(isValid);
+	// 	setInputError(error);
+	// };
+
 	const validateField = (val, shouldValidate) => {
 		let error = null;
 		let isValid = false;
-		const allValidators = [...validators, ...onChangeValidators];
+		const allValidators = [...schemes, ...onChangeSchemes];
 
 		if (shouldValidate) {
 			error = validate(allValidators, val);
 			isValid = error === null;
 			// console.log('isDirty', isDirty);
 		} else {
-			error = validate(onChangeValidators, val);
+			error = validate(onChangeSchemes, val);
 		}
-
 		setValid(isValid);
 		setInputError(error);
 	};
