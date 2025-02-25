@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import styles from './InputGroup.module.scss';
 
 export function InputGroup({ lavelText, error, ...props }) {
@@ -6,7 +5,7 @@ export function InputGroup({ lavelText, error, ...props }) {
 		<div className={styles.inputGroup}>
 			<label className={styles.label}>
 				<p className={styles.labelText}>{lavelText}</p>
-				<input {...props} className={styles.input} value={value} />
+				<input {...props} className={styles.input} />
 			</label>
 			{error && <div className={styles.error}>{error}</div>}
 		</div>

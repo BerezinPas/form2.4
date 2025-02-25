@@ -60,7 +60,8 @@ function App() {
 				type="password"
 				placeholder="password"
 				{...register('password', {
-					onChange: () => touchedFields.password && trigger('passwordRepeat'),
+					onChange: () =>
+						touchedFields.passwordRepeat && trigger('passwordRepeat'),
 				})}
 				error={errors.password?.message}
 			/>
