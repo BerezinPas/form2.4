@@ -1,0 +1,33 @@
+body {
+	background-color: #f8f9fa;
+}
+
+.form {
+	max-width: 1050px;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	margin: 50px auto 0;
+}
+.submitBtn {
+	padding: 15px 60px;
+	color: #fff;
+	font-size: 16px;
+
+	background-color: #e85b81;
+	border-radius: 8px;
+
+	// align-self: center;
+	margin-top: 20px;
+
+	&:not(:disabled):hover {
+		background-color: #c12f5d;
+	}
+	&:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+	&:focus {
+		box-shadow: 2px 2px 10px 2px #000;
+	}
+}
